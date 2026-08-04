@@ -10,7 +10,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const ORIGIN = 'https://tile.openstreetmap.jp';
-const CDN = process.env.TILES_BASE_URL || 'https://tiles.hazardmap.tinpangames.com';
+const CDN = process.env.TILES_BASE_URL || 'https://tiles.naughty-ghost.org';
 const STYLES = ['osm-bright-ja', 'maptiler-basic-ja'];
 
 // 現行スタイルの vector source 名 → 自前 PMTiles 名

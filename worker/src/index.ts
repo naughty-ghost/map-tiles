@@ -1,8 +1,8 @@
 /**
- * hazardmap タイル配信 Worker
+ * 地図タイル配信 Worker
  *
  * protomaps/PMTiles serverless/cloudflare（BSD-3-Clause）をベースに、
- * hazardmap Issue #5 Phase 2 のエンドポイント契約に合わせて変更したもの:
+ * 以下のエンドポイント契約（初出: hazardmap Issue #5 Phase 2 設計）に合わせて変更したもの:
  * - /tiles/{source}/{z}/{x}/{y}.mvt / /tiles/{source}.json … PMTiles から切り出して配信
  * - /styles/** , /fonts/** … R2 の静的ファイルをそのまま配信
  */

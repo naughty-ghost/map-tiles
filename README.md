@@ -1,16 +1,17 @@
-# hazardmap-tiles
+# map-tiles
 
-[hazardmap](https://github.com/naughty-ghost/hazardmap) の地図タイル配信基盤。
-`tile.openstreetmap.jp` への依存を廃止し、OSM ベクトルタイルを Cloudflare R2 + Workers + CDN で自前配信する。
+OSM ベクトルタイルを Cloudflare R2 + Workers + CDN で自前配信する汎用の地図タイル配信基盤。
+`tile.openstreetmap.jp` 等の外部タイルサーバーに依存せず、複数のアプリから共用できる。
 
-要件・設計の経緯は [hazardmap Issue #5](https://github.com/naughty-ghost/hazardmap/issues/5) を参照（Phase 2 詳細設計のコメントが本リポジトリの仕様）。
+最初の利用アプリは [hazardmap](https://github.com/naughty-ghost/hazardmap)。
+要件・設計の経緯は [hazardmap Issue #5](https://github.com/naughty-ghost/hazardmap/issues/5) を参照（Phase 2 詳細設計のコメントが本リポジトリの仕様の初出）。
 
 ## アーキテクチャ
 
 ```
 [クライアント (MapLibre GL)]
    ▼
-[Cloudflare CDN（tiles.hazardmap.tinpangames.com）]
+[Cloudflare CDN（tiles.naughty-ghost.org）]
    ├─ /styles/{name}/style.json・sprite*  ─┐
    ├─ /fonts/{fontstack}/{range}.pbf       ├─ Worker が R2 の静的ファイルをそのまま配信
    └─ /tiles/{source}/{z}/{x}/{y}.mvt      （source = japan | takeshima | hoppo）
@@ -22,6 +23,7 @@
 - Worker は [protomaps/PMTiles](https://github.com/protomaps/PMTiles) の serverless/cloudflare 実装（BSD-3-Clause）ベース
 - `/tiles/{source}.json` は各 PMTiles のメタデータから TileJSON を動的生成する。
   **PMTiles のメタデータに `© OpenStreetMap contributors` の attribution が入っていることを必ず確認する**（ODbL の帰属表示義務。Planetiler は既定で付与する）
+- 新しいタイルソースを追加する場合は `{name}.pmtiles` を R2 に置くだけで `/tiles/{name}/...` として配信される
 
 ## リポジトリ構成
 
@@ -37,7 +39,7 @@
 ### 1. Cloudflare 側の前提（ダッシュボード作業）
 
 1. Cloudflare アカウントで **R2 を有効化**（無料枠でも支払い方法の登録が必要）
-2. `tinpangames.com` ゾーンが同アカウントにあること（済）
+2. `naughty-ghost.org` ゾーンが同アカウントにあること（済）
 
 ### 2. wrangler 認証とバケット作成
 
@@ -45,7 +47,7 @@
 cd worker
 npm install
 npx wrangler login
-npx wrangler r2 bucket create hazardmap-tiles
+npx wrangler r2 bucket create map-tiles
 ```
 
 ### 3. タイル生成（Planetiler、Java 21 必須）
@@ -59,7 +61,7 @@ java -Xmx4g -jar data/planetiler.jar --download --area=japan --output=data/japan
 ```
 
 > takeshima / hoppo（竹島・北方領土の補完データ）の元データ確保は**未解決の検討事項**。
-> Geofabrik の japan extract に含まれない可能性が高く、確保できない場合は Issue #5 に差し戻して方針を再協議する。
+> Geofabrik の japan extract に含まれない可能性が高く、確保できない場合は hazardmap Issue #5 に差し戻して方針を再協議する。
 
 ### 4. スタイル・スプライトの生成
 
@@ -85,8 +87,8 @@ node scripts/build-styles.mjs
 3. アップロード:
 
 ```sh
-rclone copy data/japan.pmtiles r2:hazardmap-tiles/ --s3-upload-cutoff=100M --s3-chunk-size=100M
-rclone copy dist/ r2:hazardmap-tiles/
+rclone copy data/japan.pmtiles r2:map-tiles/ --s3-upload-cutoff=100M --s3-chunk-size=100M
+rclone copy dist/ r2:map-tiles/
 ```
 
 ### 6. Worker デプロイ
@@ -96,21 +98,21 @@ cd worker
 npx wrangler deploy
 ```
 
-`wrangler.toml` の `custom_domain = true` により、`tiles.hazardmap.tinpangames.com` の
+`wrangler.toml` の `custom_domain = true` により、`tiles.naughty-ghost.org` の
 DNS レコードと証明書は自動作成される。
 
 ### 7. 疎通確認
 
 ```sh
-curl -sI https://tiles.hazardmap.tinpangames.com/tiles/japan.json
-curl -sI https://tiles.hazardmap.tinpangames.com/tiles/japan/10/909/403.mvt
-curl -sI https://tiles.hazardmap.tinpangames.com/styles/osm-bright-ja/style.json
+curl -sI https://tiles.naughty-ghost.org/tiles/japan.json
+curl -sI https://tiles.naughty-ghost.org/tiles/japan/10/909/403.mvt
+curl -sI https://tiles.naughty-ghost.org/styles/osm-bright-ja/style.json
 ```
 
 ## 月次更新手順（運用）
 
 1. `java -Xmx4g -jar data/planetiler.jar --download --area=japan --output=data/japan.pmtiles`（`--download` が最新の japan-latest.osm.pbf を取得する）
-2. `rclone copy data/japan.pmtiles r2:hazardmap-tiles/ --s3-upload-cutoff=100M --s3-chunk-size=100M`
+2. `rclone copy data/japan.pmtiles r2:map-tiles/ --s3-upload-cutoff=100M --s3-chunk-size=100M`
 3. Cloudflare ダッシュボード → キャッシュ → **「すべてをパージ」**
    （プレフィックス指定パージは Enterprise 限定のため全パージとする。タイルは 1 日で再キャッシュされるため実用上の影響は軽微）
 4. アプリで表示確認（ズーム z4 / z10 / z14 / z16）

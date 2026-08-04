@@ -1,5 +1,5 @@
 {
-  "name": "hazardmap-tiles-worker",
+  "name": "map-tiles-worker",
   "version": "0.1.0",
   "private": true,
   "scripts": {
