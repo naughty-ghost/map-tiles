@@ -1,0 +1,17 @@
+name = "hazardmap-tiles"
+main = "src/index.ts"
+compatibility_date = "2025-06-01"
+
+[[routes]]
+pattern = "tiles.hazardmap.tinpangames.com"
+custom_domain = true
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "hazardmap-tiles"
+
+[vars]
+# タイルはアプリ（Web / Capacitor）以外から参照されないが、Origin が
+# capacitor://localhost 等になるため制限せず全許可とする
+ALLOWED_ORIGINS = "*"
+CACHE_CONTROL = "public, max-age=86400"
