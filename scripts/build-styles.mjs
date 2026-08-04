@@ -16,9 +16,13 @@ const STYLES = ['osm-bright-ja', 'maptiler-basic-ja'];
 // 現行スタイルの vector source 名 → 自前 PMTiles 名
 const SOURCE_NAME_MAP = {
   openmaptiles: 'japan',
-  takeshima: 'takeshima',
-  hoppo: 'hoppo',
 };
+
+/**
+ * 除去するソース。竹島・北方領土の補完データはホスティングせず
+ * 空白表示を許容する決定のため（hazardmap Issue #5 の記録を参照）
+ */
+const REMOVED_SOURCES = new Set(['takeshima', 'hoppo']);
 
 const distDir = path.join(import.meta.dirname, '..', 'dist');
 
@@ -33,13 +37,25 @@ const fontStacks = new Set();
 for (const name of STYLES) {
   const style = await (await download(`${ORIGIN}/styles/${name}/style.json`)).json();
 
+  let removedLayers = 0;
   for (const [key, source] of Object.entries(style.sources)) {
+    if (REMOVED_SOURCES.has(key)) {
+      delete style.sources[key];
+      continue;
+    }
     const mapped = SOURCE_NAME_MAP[key];
     if (!mapped) {
       throw new Error(`未知の source "${key}" が ${name} に存在します。SOURCE_NAME_MAP に追加してください`);
     }
     source.url = `${CDN}/tiles/${mapped}.json`;
   }
+  style.layers = style.layers.filter((layer) => {
+    if (REMOVED_SOURCES.has(layer.source)) {
+      removedLayers++;
+      return false;
+    }
+    return true;
+  });
 
   const originalSprite = style.sprite;
   style.glyphs = `${CDN}/fonts/{fontstack}/{range}.pbf`;
@@ -64,7 +80,7 @@ for (const name of STYLES) {
     );
   }
 
-  console.log(`✔ ${name}`);
+  console.log(`✔ ${name}（除去したレイヤー: ${removedLayers}）`);
 }
 
 console.log('\n必要なフォントスタック（グリフを fonts/ 配下に全 range 分配置すること）:');

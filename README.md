@@ -14,10 +14,10 @@ OSM ベクトルタイルを Cloudflare R2 + Workers + CDN で自前配信する
 [Cloudflare CDN（tiles.naughty-ghost.org）]
    ├─ /styles/{name}/style.json・sprite*  ─┐
    ├─ /fonts/{fontstack}/{range}.pbf       ├─ Worker が R2 の静的ファイルをそのまま配信
-   └─ /tiles/{source}/{z}/{x}/{y}.mvt      （source = japan | takeshima | hoppo）
+   └─ /tiles/{source}/{z}/{x}/{y}.mvt      （source = japan）
         │ Worker が PMTiles から Range Request でタイルを切り出して返却
         ▼
-      [R2: japan.pmtiles / takeshima.pmtiles / hoppo.pmtiles + 静的ファイル]
+      [R2: japan.pmtiles + 静的ファイル]
 ```
 
 - Worker は [protomaps/PMTiles](https://github.com/protomaps/PMTiles) の serverless/cloudflare 実装（BSD-3-Clause）ベース
@@ -61,8 +61,10 @@ curl -L -o data/planetiler.jar https://github.com/onthegomap/planetiler/releases
 java -Xmx4g -jar data/planetiler.jar --download --area=japan --output=data/japan.pmtiles
 ```
 
-> takeshima / hoppo（竹島・北方領土の補完データ）の元データ確保は**未解決の検討事項**。
-> Geofabrik の japan extract に含まれない可能性が高く、確保できない場合は hazardmap Issue #5 に差し戻して方針を再協議する。
+> 現行 tile.openstreetmap.jp が補完ソースとして配信している takeshima / hoppo
+> （竹島・北方領土）は**ホスティングせず空白表示を許容する**（2026-08-04 決定、
+> hazardmap Issue #5 に記録）。`build-styles.mjs` が両ソースとその参照レイヤーを
+> スタイルから除去する。
 
 ### 4. スタイル・スプライト・グリフの生成
 
@@ -123,7 +125,7 @@ curl -s -o /dev/null -w "%{http_code}\n" https://tiles.naughty-ghost.org/styles/
    （プレフィックス指定パージは Enterprise 限定のため全パージとする。タイルは 1 日で再キャッシュされるため実用上の影響は軽微）
 4. アプリで表示確認（ズーム z4 / z10 / z14 / z16）
 
-takeshima / hoppo・スタイル・グリフ・スプライトは変更時のみ再生成・再アップロードする。
+スタイル・グリフ・スプライトは変更時のみ再生成・再アップロードする。
 
 ## ライセンス・帰属表示
 
