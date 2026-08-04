@@ -33,6 +33,7 @@ OSM ベクトルタイルを Cloudflare R2 + Workers + CDN で自前配信する
 | `scripts/build-styles.mjs` | 現行スタイル JSON の取得・URL 書き換え・スプライト取得（`dist/` に出力） |
 | `dist/`（生成物） | R2 にアップロードする静的ファイル一式（git 管理外） |
 | `data/`（生成物） | Planetiler の入出力（git 管理外） |
+| `docs/setup-report.html` | 構築記録（背景・設計判断・手順・トラブルシューティング・ライブデモ） |
 
 ## 初回セットアップ
 
