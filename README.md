@@ -63,20 +63,21 @@ java -Xmx4g -jar data/planetiler.jar --download --area=japan --output=data/japan
 > takeshima / hoppo（竹島・北方領土の補完データ）の元データ確保は**未解決の検討事項**。
 > Geofabrik の japan extract に含まれない可能性が高く、確保できない場合は hazardmap Issue #5 に差し戻して方針を再協議する。
 
-### 4. スタイル・スプライトの生成
+### 4. スタイル・スプライト・グリフの生成
 
 ```sh
 node scripts/build-styles.mjs
+node scripts/fetch-fonts.mjs migu1c-regular migu2m-regular migu2m-bold
 ```
 
-`dist/styles/` にスタイル 2 種（osm-bright-ja / maptiler-basic-ja）とスプライトが出力され、
-必要なフォントスタック一覧が表示される。グリフ（`dist/fonts/{fontstack}/{range}.pbf`、全 256 range）は
-[openmaptiles/fonts](https://github.com/openmaptiles/fonts) のビルド済みリリース、または
-[maplibre/font-maker](https://github.com/maplibre/font-maker) で Noto Sans 系フォントから生成して配置する。
+`build-styles.mjs` で `dist/styles/` にスタイル 2 種（osm-bright-ja / maptiler-basic-ja）と
+スプライトが出力され、必要なフォントスタック一覧が表示される。
+`fetch-fonts.mjs` はそのフォントスタックのグリフ（全 256 range）を現行サーバーから取得して
+`dist/fonts/` に配置する（再生成ではなく実物を流用することで見た目同等を担保する）。
 
 > **ライセンス確認（未完了）**: 流用するスタイル JSON・スプライトのライセンス表記
-> （OpenMapTiles 系スタイルは BSD-3-Clause が一般的だが ja 派生版の個別確認が必要）と、
-> グリフの元フォントのライセンス（Noto 系は SIL OFL）を確認し、本 README に記録すること。
+> （OpenMapTiles 系スタイルは BSD-3-Clause が一般的だが ja 派生版の個別確認が必要）を確認し、
+> 本 README に記録すること。グリフの元フォント（Migu）は確認済み（下記ライセンス節を参照）。
 
 ### 5. R2 アップロード
 
@@ -123,4 +124,5 @@ takeshima / hoppo・スタイル・グリフ・スプライトは変更時のみ
 
 - タイルデータ: © OpenStreetMap contributors（[ODbL](https://www.openstreetmap.org/copyright)）。TileJSON の attribution で表示
 - Worker コード: protomaps/PMTiles（BSD-3-Clause）由来
-- スタイル・スプライト・グリフ: 上記「ライセンス確認（未完了）」を参照
+- グリフ: [Migu フォント](https://mix-mplus-ipa.osdn.jp/migu/)（M+ と IPA ゴシックの合成、[IPA フォントライセンス v1.0](https://moji.or.jp/ipafont/license/)）から生成されたもの
+- スタイル・スプライト: 上記「ライセンス確認（未完了）」を参照
