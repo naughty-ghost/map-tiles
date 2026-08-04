@@ -81,16 +81,20 @@ node scripts/fetch-fonts.mjs migu1c-regular migu2m-regular migu2m-bold
 
 ### 5. R2 アップロード
 
-`japan.pmtiles`（約 10GB）は wrangler の 300MiB 制限を超えるため rclone を使う。
+`japan.pmtiles`（約 1.7GB）は wrangler の 300MiB 制限を超えるため rclone を使う。
 
 1. Cloudflare ダッシュボード → R2 → 「R2 API トークンの管理」で S3 互換トークンを作成
-2. rclone に `r2` リモートを設定（S3 互換、endpoint は `https://<account_id>.r2.cloudflarestorage.com`）
+   （権限は「オブジェクトの読み取りと書き込み」、バケットは `map-tiles` に限定）
+2. rclone に `r2` リモートを設定（S3 互換、provider は `Cloudflare`、endpoint は `https://<account_id>.r2.cloudflarestorage.com`）
 3. アップロード:
 
 ```sh
-rclone copy data/japan.pmtiles r2:map-tiles/ --s3-upload-cutoff=100M --s3-chunk-size=100M
-rclone copy dist/ r2:map-tiles/
+rclone copy data/japan.pmtiles r2:map-tiles/ --s3-no-check-bucket --s3-upload-cutoff=100M --s3-chunk-size=100M
+rclone copy dist/ r2:map-tiles/ --s3-no-check-bucket
 ```
+
+`--s3-no-check-bucket` は必須。バケット限定トークンではバケット存在確認（HeadBucket）が
+403 になり、rclone がバケットを作成しようとして失敗するため。
 
 ### 6. Worker デプロイ
 
@@ -105,15 +109,15 @@ DNS レコードと証明書は自動作成される。
 ### 7. 疎通確認
 
 ```sh
-curl -sI https://tiles.naughty-ghost.org/tiles/japan.json
-curl -sI https://tiles.naughty-ghost.org/tiles/japan/10/909/403.mvt
-curl -sI https://tiles.naughty-ghost.org/styles/osm-bright-ja/style.json
+curl -s -o /dev/null -w "%{http_code}\n" https://tiles.naughty-ghost.org/tiles/japan.json
+curl -s -o /dev/null -w "%{http_code}\n" https://tiles.naughty-ghost.org/tiles/japan/10/909/403.mvt
+curl -s -o /dev/null -w "%{http_code}\n" https://tiles.naughty-ghost.org/styles/osm-bright-ja/style.json
 ```
 
 ## 月次更新手順（運用）
 
 1. `java -Xmx4g -jar data/planetiler.jar --download --area=japan --output=data/japan.pmtiles`（`--download` が最新の japan-latest.osm.pbf を取得する）
-2. `rclone copy data/japan.pmtiles r2:map-tiles/ --s3-upload-cutoff=100M --s3-chunk-size=100M`
+2. `rclone copy data/japan.pmtiles r2:map-tiles/ --s3-no-check-bucket --s3-upload-cutoff=100M --s3-chunk-size=100M`
 3. Cloudflare ダッシュボード → キャッシュ → **「すべてをパージ」**
    （プレフィックス指定パージは Enterprise 限定のため全パージとする。タイルは 1 日で再キャッシュされるため実用上の影響は軽微）
 4. アプリで表示確認（ズーム z4 / z10 / z14 / z16）

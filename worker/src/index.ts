@@ -103,7 +103,7 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<Response> {
-    if (request.method.toUpperCase() !== 'GET' && request.method.toUpperCase() !== 'HEAD') {
+    if (request.method.toUpperCase() !== 'GET') {
       return new Response(undefined, { status: 405 });
     }
 
