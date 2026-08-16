@@ -78,9 +78,8 @@ node scripts/fetch-fonts.mjs migu1c-regular migu2m-regular migu2m-bold
 `fetch-fonts.mjs` はそのフォントスタックのグリフ（全 256 range）を現行サーバーから取得して
 `dist/fonts/` に配置する（再生成ではなく実物を流用することで見た目同等を担保する）。
 
-> **ライセンス確認（未完了）**: 流用するスタイル JSON・スプライトのライセンス表記
-> （OpenMapTiles 系スタイルは BSD-3-Clause が一般的だが ja 派生版の個別確認が必要）を確認し、
-> 本 README に記録すること。グリフの元フォント（Migu）は確認済み（下記ライセンス節を参照）。
+> **ライセンス確認（完了）**: 流用するスタイル JSON・スプライトのライセンスは下記「ライセンス・帰属表示」節を参照。
+> グリフの元フォント（Migu）も確認済み（同節を参照）。
 
 ### 5. R2 アップロード
 
@@ -132,4 +131,12 @@ curl -s -o /dev/null -w "%{http_code}\n" https://tiles.naughty-ghost.org/styles/
 - タイルデータ: © OpenStreetMap contributors（[ODbL](https://www.openstreetmap.org/copyright)）。TileJSON の attribution で表示
 - Worker コード: protomaps/PMTiles（BSD-3-Clause）由来
 - グリフ: [Migu フォント](https://mix-mplus-ipa.osdn.jp/migu/)（M+ と IPA ゴシックの合成、[IPA フォントライセンス v1.0](https://moji.or.jp/ipafont/license/)）から生成されたもの
-- スタイル・スプライト: 上記「ライセンス確認（未完了）」を参照
+- スタイル・スプライト: `osm-bright-ja` は [openmaptiles/osm-bright-gl-style](https://github.com/openmaptiles/osm-bright-gl-style)、
+  `maptiler-basic-ja` は [openmaptiles/maptiler-basic-gl-style](https://github.com/openmaptiles/maptiler-basic-gl-style) 由来
+  （`tile.openstreetmap.jp` の style.json の `metadata.openmaptiles:mapbox:owner: openmaptiles` 等から確認）。
+  コード部分は BSD 3-Clause、デザイン（見た目）部分は [CC BY 4.0](https://github.com/openmaptiles/osm-bright-gl-style/blob/master/LICENSE.md)。
+  CC BY 4.0 は「OpenMapTiles」への視認可能なクレジット表示（`https://openmaptiles.org/` へのリンク付き）を義務付けるが、
+  下記のとおり TileJSON の attribution 経由ですでに満たしている
+- 上記の帰属表示はいずれも `/tiles/{source}.json`（TileJSON）の `attribution` フィールドに
+  `© OpenMapTiles`・`© OpenStreetMap contributors` として含まれており、MapLibre のデフォルト
+  attribution control を無効化していない限り、利用側アプリの地図画面に自動表示される
