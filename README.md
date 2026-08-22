@@ -128,6 +128,8 @@ curl -s -o /dev/null -w "%{http_code}\n" https://tiles.naughty-ghost.org/styles/
 
 ## ライセンス・帰属表示
 
+本リポジトリのコードは [LICENSE](./LICENSE)（BSD-3-Clause）の下で公開する。
+
 - タイルデータ: © OpenStreetMap contributors（[ODbL](https://www.openstreetmap.org/copyright)）。TileJSON の attribution で表示
 - Worker コード: protomaps/PMTiles（BSD-3-Clause）由来
 - グリフ: [Migu フォント](https://mix-mplus-ipa.osdn.jp/migu/)（M+ と IPA ゴシックの合成、[IPA フォントライセンス v1.0](https://moji.or.jp/ipafont/license/)）から生成されたもの
