@@ -1,0 +1,86 @@
+name: バグ報告
+description: バグや不具合を報告する
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        バグ報告ありがとうございます。再現可能な情報を記載いただけると修正がスムーズに進みます。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: バグの概要
+      description: 何が起きているかを簡潔に説明してください。
+      placeholder: 例）特定のズームレベルでタイルが404になる
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      description: バグを再現するための具体的な手順を番号付きで記載してください（リクエストURL等）。
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待する動作
+      description: 本来どう動作すべきかを記載してください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の動作
+      description: 実際に起きている動作・エラーメッセージ・レスポンス内容を記載してください。
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: tile-source
+    attributes:
+      label: 対象タイルソース
+      description: 関連するタイルソース名やスタイル名があれば記載してください。
+      placeholder: 例）japan
+    validations:
+      required: false
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 環境種別
+      description: バグが発生した環境を選択してください。
+      options:
+        - 本番（tiles.naughty-ghost.org）
+        - ローカル（wrangler dev）
+        - 不明
+    validations:
+      required: true
+
+  - type: input
+    id: occurred_at
+    attributes:
+      label: 発生日時
+      description: バグが発生した日時を記載してください（タイムゾーンも明記）。
+      placeholder: 例）2026-08-22 14:30 JST
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: 補足
+      description: ログ・スクリーンショット・調査結果など、補足情報があれば記載してください。
+    validations:
+      required: false

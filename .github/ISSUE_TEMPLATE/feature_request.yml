@@ -1,0 +1,64 @@
+name: 機能追加
+description: 新機能・機能改善の要望
+title: "[Feature] "
+labels:
+  - feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        新機能・機能改善の要望を記載してください。
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: ユーザーストーリー / 機能要件
+      description: 誰が・何を・なぜ必要としているかを記載してください（利用アプリ側の要件を含む）。
+      placeholder: |
+        〇〇（利用アプリ）として、△△したい。なぜなら□□だから。
+
+        機能要件:
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: non-functional
+    attributes:
+      label: 非機能要件
+      description: 性能・容量・帰属表示（attribution）などの制約があれば記載してください。
+      placeholder: |
+        - 性能要件:
+        - R2容量・コストへの影響:
+        - ライセンス/帰属表示（ODbL等）への影響:
+        - その他:
+    validations:
+      required: false
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: スコープ外
+      description: 今回対応しないことを明示してください。
+      placeholder: |
+        - 〇〇の対応は今回スコープ外
+    validations:
+      required: false
+
+  - type: textarea
+    id: glossary
+    attributes:
+      label: 用語集
+      description: この機能で使用する固有名詞・略語・概念を定義してください（必要な場合）。
+      placeholder: |
+        - 〇〇: △△のこと
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 補足
+      description: 設計上の考慮点・参考リンク・関連 Issue などがあれば記載してください。
+    validations:
+      required: false
