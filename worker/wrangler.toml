@@ -11,7 +11,10 @@ binding = "BUCKET"
 bucket_name = "map-tiles"
 
 [vars]
-# タイルは各アプリ（Web / Capacitor）から参照され、Origin が
-# capacitor://localhost 等になるため制限せず全許可とする
-ALLOWED_ORIGINS = "*"
+# Origin ヘッダーに基づく簡易フィルタ（worker/src/index.ts の isAllowedOrigin）で
+# capacitor://localhost・http(s)://localhost:*（Capacitor / 開発用Web、実機で確認済み
+# 2026-09-23）以外からの単純なアクセスを拒否する。それらに加えて追加で許可したい
+# Origin があればここにカンマ区切りで指定する（例: Web 版を本番公開する場合のドメイン）。
+# フィルタを全解除する場合は "*" を指定する。
+ALLOWED_ORIGINS = ""
 CACHE_CONTROL = "public, max-age=86400"
