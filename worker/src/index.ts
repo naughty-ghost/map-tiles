@@ -97,6 +97,26 @@ const STATIC_CONTENT_TYPES: Record<string, string> = {
   pbf: 'application/x-protobuf',
 };
 
+// hazardmap（実機での確認済み: 2026-09-23）が実際に送る Origin:
+// - iOS Capacitor:      capacitor://localhost
+// - Android Capacitor:  https://localhost
+// - 開発用 Web (Vite):   http://localhost:<port>
+// Origin ヘッダーは詐称可能なため厳密な認証ではないが、ヘッダーを気にせず
+// アクセスしてくる単純なスクレイパー・クローラーの大半を排除できる。
+const LOCALHOST_ORIGIN = /^https?:\/\/localhost(:\d+)?$/;
+
+function isAllowedOrigin(origin: string | null, env: Env): boolean {
+  if (env.ALLOWED_ORIGINS === '*') return true;
+  if (!origin) return false;
+  if (origin === 'capacitor://localhost' || LOCALHOST_ORIGIN.test(origin)) {
+    return true;
+  }
+  return (env.ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((o) => o.trim())
+    .includes(origin);
+}
+
 export default {
   async fetch(
     request: Request,
@@ -110,14 +130,11 @@ export default {
     const url = new URL(request.url);
     const cache = caches.default;
 
-    let allowedOrigin = '';
-    if (typeof env.ALLOWED_ORIGINS !== 'undefined') {
-      for (const o of env.ALLOWED_ORIGINS.split(',')) {
-        if (o === request.headers.get('Origin') || o === '*') {
-          allowedOrigin = o;
-        }
-      }
+    const origin = request.headers.get('Origin');
+    if (!isAllowedOrigin(origin, env)) {
+      return new Response('Forbidden', { status: 403 });
     }
+    const allowedOrigin = env.ALLOWED_ORIGINS === '*' ? '*' : origin || '';
 
     const cached = await cache.match(request.url);
     if (cached) {

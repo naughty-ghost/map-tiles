@@ -111,9 +111,11 @@ DNS レコードと証明書は自動作成される。
 ### 7. 疎通確認
 
 ```sh
-curl -s -o /dev/null -w "%{http_code}\n" https://tiles.naughty-ghost.org/tiles/japan.json
-curl -s -o /dev/null -w "%{http_code}\n" https://tiles.naughty-ghost.org/tiles/japan/10/909/403.mvt
-curl -s -o /dev/null -w "%{http_code}\n" https://tiles.naughty-ghost.org/styles/osm-bright-ja/style.json
+# Origin ヘッダーがないと 403 になる（アクセス制限、worker/src/index.ts 参照）ため付与する
+ORIGIN_HEADER="Origin: capacitor://localhost"
+curl -s -o /dev/null -w "%{http_code}\n" -H "$ORIGIN_HEADER" https://tiles.naughty-ghost.org/tiles/japan.json
+curl -s -o /dev/null -w "%{http_code}\n" -H "$ORIGIN_HEADER" https://tiles.naughty-ghost.org/tiles/japan/10/909/403.mvt
+curl -s -o /dev/null -w "%{http_code}\n" -H "$ORIGIN_HEADER" https://tiles.naughty-ghost.org/styles/osm-bright-ja/style.json
 ```
 
 ## 月次更新手順（運用）
